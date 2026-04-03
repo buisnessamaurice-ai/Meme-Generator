@@ -1,0 +1,249 @@
+:root {
+  --bg:        #0f0f0f;
+  --surface:   #1a1a1a;
+  --border:    #2e2e2e;
+  --accent:    #f5c400;
+  --text:      #f0ede6;
+  --muted:     #888;
+  --radius:    10px;
+  --font-ui:   'DM Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+header {
+  width: 100%;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+header h1 { font-family: 'Oswald', sans-serif; font-size: 1.6rem; color: var(--accent); letter-spacing: 0.04em; }
+header span { font-size: 12px; color: var(--muted); }
+
+/* Two-column layout: fixed left panel, flexible right */
+.app {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  width: 100%;
+  max-width: 1200px;
+  flex: 1;
+}
+
+.panel {
+  padding: 1.5rem;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  overflow-y: auto;
+}
+
+.section-title { font-size: 10px; letter-spacing: 0.12em; color: var(--muted); text-transform: uppercase; margin-bottom: 0.6rem; }
+
+label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+
+input:not([type=range]):not([type=color]):not([type=checkbox]),
+select, textarea {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  padding: 8px 10px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+input:not([type=range]):not([type=color]):not([type=checkbox]):focus,
+textarea:focus,
+select:focus { border-color: var(--accent); }
+
+textarea { resize: vertical; min-height: 55px; }
+input[type=range] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+input[type=color] { width: 34px; height: 34px; border: 1px solid var(--border); border-radius: 6px; background: none; cursor: pointer; padding: 2px; flex-shrink: 0; }
+
+/* Checkbox toggle pill */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.toggle-row span { font-size: 12px; color: var(--muted); }
+.toggle-row input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; }
+
+.row { display: flex; gap: 8px; align-items: flex-end; }
+.row > * { flex: 1; }
+
+.slider-row { display: flex; align-items: center; gap: 8px; }
+.slider-row input[type=range] { flex: 1; }
+.slider-val { font-size: 11px; color: var(--muted); min-width: 30px; text-align: right; }
+
+/* Alignment button group */
+.align-group { display: flex; gap: 6px; }
+.align-btn {
+  flex: 1;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 7px 4px;
+  background: var(--surface);
+  color: var(--muted);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.align-btn:hover { background: #252525; }
+.align-btn.active { border-color: var(--accent); color: var(--accent); background: #1f1a00; }
+
+button {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 9px 14px;
+  background: var(--surface);
+  color: var(--text);
+  transition: background 0.15s, border-color 0.15s;
+}
+
+button:hover { background: #252525; border-color: #444; }
+button:active { transform: scale(0.98); }
+
+button.primary {
+  background: var(--accent);
+  color: #000;
+  border-color: var(--accent);
+  font-weight: 500;
+  width: 100%;
+  padding: 11px;
+  font-size: 13px;
+}
+
+button.primary:hover { background: #ffd31a; }
+
+/* Copy button turns green briefly on success */
+button.copied {
+  background: #1a3a1a;
+  border-color: #1D9E75;
+  color: #1D9E75;
+}
+
+/*
+  position:relative here so the invisible <input type="file"> inside
+  can be positioned absolute on top of the whole zone.
+*/
+.upload-zone {
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  position: relative;
+}
+
+.upload-zone:hover { border-color: var(--accent); background: #1f1f1f; }
+.upload-zone p { font-size: 12px; color: var(--muted); pointer-events: none; }
+.upload-zone strong { color: var(--accent); font-size: 13px; }
+
+.upload-zone input[type=file] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+
+.templates { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.tpl-btn { padding: 0; overflow: hidden; aspect-ratio: 1; border-radius: 8px; }
+.tpl-btn img { width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(20%); transition: filter 0.15s, transform 0.15s; }
+.tpl-btn:hover img { filter: grayscale(0%); transform: scale(1.05); }
+.tpl-btn.selected { border-color: var(--accent); border-width: 2px; }
+
+.canvas-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  gap: 1.5rem;
+}
+
+#meme-canvas {
+  max-width: 100%;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: #111;
+  display: block;
+}
+
+.canvas-hint { font-size: 12px; color: var(--muted); text-align: center; }
+.download-row { display: flex; gap: 10px; flex-wrap: wrap; }
+hr { border: none; border-top: 1px solid var(--border); }
+
+/* Collapsible sub-section header inside section 5 */
+.sub-divider {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-top: 1px solid var(--border);
+  padding-top: 0.75rem;
+  margin-top: 0.25rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.sub-divider:hover { color: var(--text); }
+
+/* Arrow rotates when section is open */
+.sub-divider .arrow {
+  font-size: 9px;
+  transition: transform 0.2s;
+  display: inline-block;
+}
+
+.sub-divider.open .arrow { transform: rotate(180deg); }
+
+/*
+  Collapsible body — uses max-height trick instead of display:none
+  because display can't be animated but max-height can.
+*/
+.sub-body {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.25s ease, opacity 0.2s ease;
+  opacity: 0;
+}
+
+.sub-body.open {
+  max-height: 600px;
+  opacity: 1;
+}
