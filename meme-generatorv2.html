@@ -1,0 +1,1071 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Meme Generator</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <!--
+    Load all the fonts we offer in the font picker.
+    Each family here maps to one option in the <select> dropdown.
+  -->
+        <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=DM+Mono:wght@400;500&family=Impact&family=Comic+Neue:wght@700&family=Bebas+Neue&family=Pacifico&family=Anton&display=swap"
+        />
+
+        <style>
+            :root {
+                --bg: #0f0f0f;
+                --surface: #1a1a1a;
+                --border: #2e2e2e;
+                --accent: #f5c400;
+                --text: #f0ede6;
+                --muted: #888;
+                --radius: 10px;
+                --font-ui: "DM Mono", monospace;
+            }
+
+            *,
+            *::before,
+            *::after {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                background: var(--bg);
+                color: var(--text);
+                font-family: var(--font-ui);
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            header {
+                width: 100%;
+                padding: 1.5rem 2rem;
+                border-bottom: 1px solid var(--border);
+                display: flex;
+                align-items: baseline;
+                gap: 12px;
+            }
+
+            header h1 {
+                font-family: "Oswald", sans-serif;
+                font-size: 1.6rem;
+                color: var(--accent);
+                letter-spacing: 0.04em;
+            }
+            header span {
+                font-size: 12px;
+                color: var(--muted);
+            }
+
+            .app {
+                display: grid;
+                grid-template-columns: 320px 1fr;
+                width: 100%;
+                max-width: 1200px;
+                flex: 1;
+            }
+
+            .panel {
+                padding: 1.5rem;
+                border-right: 1px solid var(--border);
+                display: flex;
+                flex-direction: column;
+                gap: 1.25rem;
+                overflow-y: auto;
+            }
+
+            .section-title {
+                font-size: 10px;
+                letter-spacing: 0.12em;
+                color: var(--muted);
+                text-transform: uppercase;
+                margin-bottom: 0.6rem;
+            }
+
+            label {
+                display: block;
+                font-size: 11px;
+                color: var(--muted);
+                margin-bottom: 4px;
+            }
+
+            input:not([type="range"]):not([type="color"]):not(
+                    [type="checkbox"]
+                ),
+            select,
+            textarea {
+                width: 100%;
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                color: var(--text);
+                font-family: var(--font-ui);
+                font-size: 13px;
+                padding: 8px 10px;
+                outline: none;
+                transition: border-color 0.15s;
+            }
+
+            input:not([type="range"]):not([type="color"]):not(
+                    [type="checkbox"]
+                ):focus,
+            textarea:focus,
+            select:focus {
+                border-color: var(--accent);
+            }
+
+            textarea {
+                resize: vertical;
+                min-height: 55px;
+            }
+            input[type="range"] {
+                width: 100%;
+                accent-color: var(--accent);
+                cursor: pointer;
+            }
+            input[type="color"] {
+                width: 34px;
+                height: 34px;
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                background: none;
+                cursor: pointer;
+                padding: 2px;
+                flex-shrink: 0;
+            }
+
+            /* Checkbox toggle pill */
+            .toggle-row {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 7px 10px;
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                cursor: pointer;
+            }
+
+            .toggle-row span {
+                font-size: 12px;
+                color: var(--muted);
+            }
+
+            .toggle-row input[type="checkbox"] {
+                accent-color: var(--accent);
+                width: 16px;
+                height: 16px;
+                cursor: pointer;
+            }
+
+            .row {
+                display: flex;
+                gap: 8px;
+                align-items: flex-end;
+            }
+            .row > * {
+                flex: 1;
+            }
+
+            .slider-row {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .slider-row input[type="range"] {
+                flex: 1;
+            }
+            .slider-val {
+                font-size: 11px;
+                color: var(--muted);
+                min-width: 30px;
+                text-align: right;
+            }
+
+            /* Alignment button group */
+            .align-group {
+                display: flex;
+                gap: 6px;
+            }
+            .align-btn {
+                flex: 1;
+                font-family: var(--font-ui);
+                font-size: 13px;
+                cursor: pointer;
+                border-radius: var(--radius);
+                border: 1px solid var(--border);
+                padding: 7px 4px;
+                background: var(--surface);
+                color: var(--muted);
+                transition:
+                    background 0.15s,
+                    color 0.15s,
+                    border-color 0.15s;
+            }
+
+            .align-btn:hover {
+                background: #252525;
+            }
+            .align-btn.active {
+                border-color: var(--accent);
+                color: var(--accent);
+                background: #1f1a00;
+            }
+
+            button {
+                font-family: var(--font-ui);
+                font-size: 12px;
+                cursor: pointer;
+                border-radius: var(--radius);
+                border: 1px solid var(--border);
+                padding: 9px 14px;
+                background: var(--surface);
+                color: var(--text);
+                transition:
+                    background 0.15s,
+                    border-color 0.15s;
+            }
+
+            button:hover {
+                background: #252525;
+                border-color: #444;
+            }
+            button:active {
+                transform: scale(0.98);
+            }
+
+            button.primary {
+                background: var(--accent);
+                color: #000;
+                border-color: var(--accent);
+                font-weight: 500;
+                width: 100%;
+                padding: 11px;
+                font-size: 13px;
+            }
+
+            button.primary:hover {
+                background: #ffd31a;
+            }
+
+            .upload-zone {
+                border: 1.5px dashed var(--border);
+                border-radius: var(--radius);
+                padding: 1.25rem 1rem;
+                text-align: center;
+                cursor: pointer;
+                transition:
+                    border-color 0.15s,
+                    background 0.15s;
+                position: relative;
+            }
+
+            .upload-zone:hover {
+                border-color: var(--accent);
+                background: #1f1f1f;
+            }
+            .upload-zone p {
+                font-size: 12px;
+                color: var(--muted);
+                pointer-events: none;
+            }
+            .upload-zone strong {
+                color: var(--accent);
+                font-size: 13px;
+            }
+
+            .upload-zone input[type="file"] {
+                position: absolute;
+                inset: 0;
+                opacity: 0;
+                cursor: pointer;
+                width: 100%;
+                height: 100%;
+            }
+
+            .templates {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+            .tpl-btn {
+                padding: 0;
+                overflow: hidden;
+                aspect-ratio: 1;
+                border-radius: 8px;
+            }
+            .tpl-btn img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block;
+                filter: grayscale(20%);
+                transition:
+                    filter 0.15s,
+                    transform 0.15s;
+            }
+            .tpl-btn:hover img {
+                filter: grayscale(0%);
+                transform: scale(1.05);
+            }
+            .tpl-btn.selected {
+                border-color: var(--accent);
+                border-width: 2px;
+            }
+
+            .canvas-area {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 2rem;
+                gap: 1.5rem;
+            }
+
+            #meme-canvas {
+                max-width: 100%;
+                border-radius: var(--radius);
+                border: 1px solid var(--border);
+                background: #111;
+                display: block;
+            }
+
+            .canvas-hint {
+                font-size: 12px;
+                color: var(--muted);
+                text-align: center;
+            }
+            .download-row {
+                display: flex;
+                gap: 10px;
+            }
+            hr {
+                border: none;
+                border-top: 1px solid var(--border);
+            }
+
+            /* Collapsible sub-section header inside section 5 */
+            .sub-divider {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                font-size: 10px;
+                color: var(--muted);
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                border-top: 1px solid var(--border);
+                padding-top: 0.75rem;
+                margin-top: 0.25rem;
+                cursor: pointer;
+                user-select: none;
+            }
+
+            .sub-divider:hover {
+                color: var(--text);
+            }
+
+            /* The arrow rotates when the section is open */
+            .sub-divider .arrow {
+                font-size: 9px;
+                transition: transform 0.2s;
+                display: inline-block;
+            }
+
+            .sub-divider.open .arrow {
+                transform: rotate(180deg);
+            }
+
+            /* The collapsible body — hidden by default via max-height trick.
+       max-height transition is smoother than display:none because
+       display can't be animated, but max-height can. */
+            .sub-body {
+                overflow: hidden;
+                max-height: 0;
+                transition:
+                    max-height 0.25s ease,
+                    opacity 0.2s ease;
+                opacity: 0;
+            }
+
+            .sub-body.open {
+                max-height: 600px; /* large enough to fit any content */
+                opacity: 1;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1>MEME GENERATOR</h1>
+            <span>by you, powered by Canvas API</span>
+        </header>
+
+        <div class="app">
+            <div class="panel">
+                <div>
+                    <div class="section-title">01 — Image</div>
+                    <div class="upload-zone">
+                        <strong>Click to upload</strong>
+                        <p>or drag an image here</p>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onchange="handleUpload(this)"
+                        />
+                    </div>
+                </div>
+
+                <hr />
+
+                <div>
+                    <div class="section-title">02 — Templates</div>
+                    <div class="templates" id="templates"></div>
+                </div>
+
+                <hr />
+
+                <div>
+                    <div class="section-title">03 — Top text</div>
+                    <textarea
+                        id="topText"
+                        placeholder="TOP TEXT"
+                        rows="2"
+                        oninput="redraw()"
+                    ></textarea>
+                </div>
+
+                <div>
+                    <div class="section-title">04 — Bottom text</div>
+                    <textarea
+                        id="bottomText"
+                        placeholder="BOTTOM TEXT"
+                        rows="2"
+                        oninput="redraw()"
+                    ></textarea>
+                </div>
+
+                <hr />
+
+                <!-- ═══════════════════════════════════════════
+         SECTION 5 — collapsible style sub-sections
+    ════════════════════════════════════════════ -->
+                <div>
+                    <div class="section-title">05 — Style</div>
+
+                    <!-- FONT + SIZE + ALIGNMENT + CAPS always visible (most used) -->
+                    <label>Font</label>
+                    <select id="fontFamily" onchange="redraw()">
+                        <option value="Oswald">Oswald</option>
+                        <option value="Impact">Impact</option>
+                        <option value="Anton">Anton</option>
+                        <option value="Bebas Neue">Bebas Neue</option>
+                        <option value="Pacifico">Pacifico</option>
+                        <option value="Comic Neue">Comic Neue</option>
+                    </select>
+                    <br />
+                    <label>Font size</label>
+                    <div class="slider-row">
+                        <input
+                            type="range"
+                            id="fontSize"
+                            min="16"
+                            max="140"
+                            value="52"
+                            step="1"
+                            oninput="
+                                document.getElementById(
+                                    'fontSizeVal',
+                                ).textContent = this.value;
+                                redraw();
+                            "
+                        />
+                        <span class="slider-val" id="fontSizeVal">52</span>
+                    </div>
+                    <br />
+                    <label>Alignment</label>
+                    <div class="align-group">
+                        <button
+                            class="align-btn active"
+                            id="align-left"
+                            onclick="setAlign('left')"
+                        >
+                            ←
+                        </button>
+                        <button
+                            class="align-btn"
+                            id="align-center"
+                            onclick="setAlign('center')"
+                        >
+                            ↔
+                        </button>
+                        <button
+                            class="align-btn"
+                            id="align-right"
+                            onclick="setAlign('right')"
+                        >
+                            →
+                        </button>
+                    </div>
+                    <br />
+                    <label class="toggle-row" for="allCaps">
+                        <span>All caps</span>
+                        <input
+                            type="checkbox"
+                            id="allCaps"
+                            checked
+                            onchange="redraw()"
+                        />
+                    </label>
+
+                    <!-- COLOUR — collapsible -->
+                    <div class="sub-divider" onclick="toggleSub('colour')">
+                        Colour <span class="arrow">▲</span>
+                    </div>
+                    <div class="sub-body" id="sub-colour">
+                        <br />
+                        <div class="row">
+                            <div>
+                                <label>Text</label>
+                                <input
+                                    type="color"
+                                    id="textColor"
+                                    value="#ffffff"
+                                    oninput="redraw()"
+                                />
+                            </div>
+                            <div>
+                                <label>Outline</label>
+                                <input
+                                    type="color"
+                                    id="strokeColor"
+                                    value="#000000"
+                                    oninput="redraw()"
+                                />
+                            </div>
+                            <div>
+                                <label>Stroke width</label>
+                                <div class="slider-row">
+                                    <input
+                                        type="range"
+                                        id="strokeWidth"
+                                        min="0"
+                                        max="14"
+                                        value="4"
+                                        step="1"
+                                        oninput="
+                                            document.getElementById(
+                                                'strokeVal',
+                                            ).textContent = this.value;
+                                            redraw();
+                                        "
+                                    />
+                                    <span class="slider-val" id="strokeVal"
+                                        >4</span
+                                    >
+                                </div>
+                            </div>
+                        </div>
+                        <br />
+                        <label>Text opacity</label>
+                        <div class="slider-row">
+                            <input
+                                type="range"
+                                id="textOpacity"
+                                min="0"
+                                max="100"
+                                value="100"
+                                step="1"
+                                oninput="
+                                    document.getElementById(
+                                        'opacityVal',
+                                    ).textContent = this.value + '%';
+                                    redraw();
+                                "
+                            />
+                            <span class="slider-val" id="opacityVal">100%</span>
+                        </div>
+                        <br />
+                    </div>
+
+                    <!-- SHADOW — collapsible -->
+                    <div class="sub-divider" onclick="toggleSub('shadow')">
+                        Shadow <span class="arrow">▲</span>
+                    </div>
+                    <div class="sub-body" id="sub-shadow">
+                        <br />
+                        <label class="toggle-row" for="shadowOn">
+                            <span>Enable shadow</span>
+                            <input
+                                type="checkbox"
+                                id="shadowOn"
+                                onchange="redraw()"
+                            />
+                        </label>
+                        <br />
+                        <div class="row">
+                            <div>
+                                <label>Shadow colour</label>
+                                <input
+                                    type="color"
+                                    id="shadowColor"
+                                    value="#000000"
+                                    oninput="redraw()"
+                                />
+                            </div>
+                            <div>
+                                <label>Blur</label>
+                                <div class="slider-row">
+                                    <input
+                                        type="range"
+                                        id="shadowBlur"
+                                        min="0"
+                                        max="30"
+                                        value="8"
+                                        step="1"
+                                        oninput="
+                                            document.getElementById(
+                                                'shadowBlurVal',
+                                            ).textContent = this.value;
+                                            redraw();
+                                        "
+                                    />
+                                    <span class="slider-val" id="shadowBlurVal"
+                                        >8</span
+                                    >
+                                </div>
+                            </div>
+                        </div>
+                        <br />
+                        <label>Shadow offset X</label>
+                        <div class="slider-row">
+                            <input
+                                type="range"
+                                id="shadowX"
+                                min="-20"
+                                max="20"
+                                value="3"
+                                step="1"
+                                oninput="
+                                    document.getElementById(
+                                        'shadowXVal',
+                                    ).textContent = this.value;
+                                    redraw();
+                                "
+                            />
+                            <span class="slider-val" id="shadowXVal">3</span>
+                        </div>
+                        <br />
+                        <label>Shadow offset Y</label>
+                        <div class="slider-row">
+                            <input
+                                type="range"
+                                id="shadowY"
+                                min="-20"
+                                max="20"
+                                value="3"
+                                step="1"
+                                oninput="
+                                    document.getElementById(
+                                        'shadowYVal',
+                                    ).textContent = this.value;
+                                    redraw();
+                                "
+                            />
+                            <span class="slider-val" id="shadowYVal">3</span>
+                        </div>
+                        <br />
+                    </div>
+
+                    <!-- POSITION — collapsible -->
+                    <div class="sub-divider" onclick="toggleSub('position')">
+                        Position <span class="arrow">▲</span>
+                    </div>
+                    <div class="sub-body" id="sub-position">
+                        <br />
+                        <label>Top text — vertical</label>
+                        <div class="slider-row">
+                            <!--
+            Value is a % of canvas height. redraw() converts it to real pixels
+            by multiplying: canvas.height * (value / 100)
+          -->
+                            <input
+                                type="range"
+                                id="topY"
+                                min="0"
+                                max="100"
+                                value="8"
+                                step="1"
+                                oninput="
+                                    document.getElementById(
+                                        'topYVal',
+                                    ).textContent = this.value + '%';
+                                    redraw();
+                                "
+                            />
+                            <span class="slider-val" id="topYVal">8%</span>
+                        </div>
+                        <br />
+                        <label>Bottom text — vertical</label>
+                        <div class="slider-row">
+                            <input
+                                type="range"
+                                id="bottomY"
+                                min="0"
+                                max="100"
+                                value="92"
+                                step="1"
+                                oninput="
+                                    document.getElementById(
+                                        'bottomYVal',
+                                    ).textContent = this.value + '%';
+                                    redraw();
+                                "
+                            />
+                            <span class="slider-val" id="bottomYVal">92%</span>
+                        </div>
+                        <br />
+                        <label>Horizontal (both)</label>
+                        <div class="slider-row">
+                            <input
+                                type="range"
+                                id="textX"
+                                min="0"
+                                max="100"
+                                value="50"
+                                step="1"
+                                oninput="
+                                    document.getElementById(
+                                        'textXVal',
+                                    ).textContent = this.value + '%';
+                                    redraw();
+                                "
+                            />
+                            <span class="slider-val" id="textXVal">50%</span>
+                        </div>
+                        <br />
+                    </div>
+                </div>
+
+                <hr />
+
+                <div>
+                    <div class="section-title">06 — Export</div>
+                    <div class="download-row">
+                        <button onclick="undo()">↩ Undo</button>
+                        <!-- ← add this -->
+                        <button class="primary" onclick="downloadMeme('png')">
+                            Download PNG
+                        </button>
+                        <button onclick="downloadMeme('jpeg')">JPG</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="canvas-area">
+                <canvas id="meme-canvas" width="500" height="500"></canvas>
+                <p class="canvas-hint">
+                    Choose a template or upload an image to get started
+                </p>
+            </div>
+        </div>
+
+        <script>
+            const canvas = document.getElementById("meme-canvas");
+            const ctx = canvas.getContext("2d");
+
+            let currentImage = null;
+
+            // Undo history — stores up to 20 snapshots of the canvas as image data strings
+            const undoStack = [];
+            const MAX_UNDO = 20;
+
+            function saveSnapshot() {
+                // toDataURL captures every pixel on the canvas as a base64 string
+                undoStack.push(canvas.toDataURL());
+                // If we exceed the limit, remove the oldest snapshot from the front
+                if (undoStack.length > MAX_UNDO) undoStack.shift();
+            }
+
+            function undo() {
+                // Nothing to undo
+                if (undoStack.length === 0) return;
+
+                // Pop the most recent snapshot off the stack
+                const snapshot = undoStack.pop();
+
+                // Load that snapshot back onto the canvas as an image
+                const img = new Image();
+                img.onload = () => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0);
+                };
+                img.src = snapshot;
+            }
+
+            let textAlign = "left"; // tracks the active alignment button
+
+            const TEMPLATES = [
+                { name: "Drake", url: "https://i.imgflip.com/30b1gx.jpg" },
+                {
+                    name: "Distracted BF",
+                    url: "https://i.imgflip.com/1ur9b0.jpg",
+                },
+                {
+                    name: "Two Buttons",
+                    url: "https://i.imgflip.com/1g8my4.jpg",
+                },
+                {
+                    name: "Change My Mind",
+                    url: "https://i.imgflip.com/24y43o.jpg",
+                },
+                {
+                    name: "Expanding Brain",
+                    url: "https://i.imgflip.com/1jwhww.jpg",
+                },
+                {
+                    name: "This is Fine",
+                    url: "https://i.imgflip.com/wxica.jpg",
+                },
+            ];
+
+            const grid = document.getElementById("templates");
+            TEMPLATES.forEach((tpl) => {
+                const btn = document.createElement("button");
+                btn.className = "tpl-btn";
+                btn.title = tpl.name;
+                const img = document.createElement("img");
+                img.src = tpl.url;
+                img.alt = tpl.name;
+                img.loading = "lazy";
+                btn.appendChild(img);
+                btn.onclick = () => {
+                    document
+                        .querySelectorAll(".tpl-btn")
+                        .forEach((b) => b.classList.remove("selected"));
+                    btn.classList.add("selected");
+                    loadImageFromURL(tpl.url);
+                };
+                grid.appendChild(btn);
+            });
+
+            // Toggle a collapsible sub-section open/closed by its key name
+            function toggleSub(key) {
+                const header = document.querySelector(
+                    `.sub-divider[onclick="toggleSub('${key}')"]`,
+                );
+                const body = document.getElementById("sub-" + key);
+                const isOpen = body.classList.contains("open");
+                body.classList.toggle("open", !isOpen);
+                header.classList.toggle("open", !isOpen);
+            }
+
+            // Alignment buttons — highlight the active one and store the value
+            function setAlign(value) {
+                textAlign = value;
+                ["left", "center", "right"].forEach((a) => {
+                    document
+                        .getElementById("align-" + a)
+                        .classList.toggle("active", a === value);
+                });
+                redraw();
+            }
+
+            function handleUpload(input) {
+                const file = input.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => loadImageFromURL(e.target.result);
+                reader.readAsDataURL(file);
+            }
+
+            function loadImageFromURL(url) {
+                const img = new Image();
+                img.crossOrigin = "Anonymous";
+                img.onload = () => {
+                    currentImage = img;
+                    canvas.width = img.naturalWidth;
+                    canvas.height = img.naturalHeight;
+                    redraw();
+                };
+                img.onerror = () =>
+                    alert("Could not load image. Try uploading directly.");
+                img.src = url;
+            }
+
+            function redraw() {
+                if (!currentImage) return;
+
+                saveSnapshot(); // ← the only new line
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
+
+                // Read all style settings
+                const fontSize = parseInt(
+                    document.getElementById("fontSize").value,
+                );
+                const fontFamily = document.getElementById("fontFamily").value;
+                const textColor = document.getElementById("textColor").value;
+                const strokeColor =
+                    document.getElementById("strokeColor").value;
+                const strokeWidth = parseInt(
+                    document.getElementById("strokeWidth").value,
+                );
+                const opacity =
+                    parseInt(document.getElementById("textOpacity").value) /
+                    100;
+                const allCaps = document.getElementById("allCaps").checked;
+                const shadowOn = document.getElementById("shadowOn").checked;
+                const shadowColor =
+                    document.getElementById("shadowColor").value;
+                const shadowBlur = parseInt(
+                    document.getElementById("shadowBlur").value,
+                );
+                const shadowOffX = parseInt(
+                    document.getElementById("shadowX").value,
+                );
+                const shadowOffY = parseInt(
+                    document.getElementById("shadowY").value,
+                );
+
+                // Convert percentage sliders to actual pixel coordinates
+                const topYPct =
+                    parseInt(document.getElementById("topY").value) / 100;
+                const bottomYPct =
+                    parseInt(document.getElementById("bottomY").value) / 100;
+                const textXPct =
+                    parseInt(document.getElementById("textX").value) / 100;
+
+                const topY = canvas.height * topYPct;
+                const bottomY = canvas.height * bottomYPct;
+                const textX = canvas.width * textXPct;
+
+                let topText = document.getElementById("topText").value;
+                let bottomText = document.getElementById("bottomText").value;
+
+                if (allCaps) {
+                    topText = topText.toUpperCase();
+                    bottomText = bottomText.toUpperCase();
+                }
+
+                // globalAlpha affects everything drawn after it — we reset to 1 after text
+                ctx.globalAlpha = opacity;
+
+                ctx.font = `700 ${fontSize}px '${fontFamily}', sans-serif`;
+                ctx.fillStyle = textColor;
+                ctx.strokeStyle = strokeColor;
+                ctx.lineWidth = strokeWidth;
+                ctx.textAlign = textAlign;
+                ctx.lineJoin = "round";
+
+                // Apply shadow settings — canvas shadows work on both fill and stroke
+                if (shadowOn) {
+                    ctx.shadowColor = shadowColor;
+                    ctx.shadowBlur = shadowBlur;
+                    ctx.shadowOffsetX = shadowOffX;
+                    ctx.shadowOffsetY = shadowOffY;
+                } else {
+                    // Reset shadow so it doesn't bleed into the next redraw
+                    ctx.shadowColor = "transparent";
+                    ctx.shadowBlur = 0;
+                    ctx.shadowOffsetX = 0;
+                    ctx.shadowOffsetY = 0;
+                }
+
+                if (topText)
+                    drawWrappedText(
+                        topText,
+                        textX,
+                        topY,
+                        fontSize,
+                        strokeWidth,
+                    );
+                if (bottomText)
+                    drawWrappedText(
+                        bottomText,
+                        textX,
+                        bottomY,
+                        fontSize,
+                        strokeWidth,
+                    );
+
+                // Always reset globalAlpha so the base image isn't affected next redraw
+                ctx.globalAlpha = 1;
+            }
+
+            function drawWrappedText(text, x, y, fontSize, strokeWidth) {
+                const maxWidth = canvas.width * 0.9;
+                const lineHeight = fontSize * 1.15;
+
+                const words = text.split(" ");
+                const lines = [];
+                let currentLine = "";
+
+                for (const word of words) {
+                    const testLine = currentLine
+                        ? currentLine + " " + word
+                        : word;
+                    if (
+                        ctx.measureText(testLine).width > maxWidth &&
+                        currentLine
+                    ) {
+                        lines.push(currentLine);
+                        currentLine = word;
+                    } else {
+                        currentLine = testLine;
+                    }
+                }
+                lines.push(currentLine);
+
+                lines.forEach((line, i) => {
+                    const lineY = y + i * lineHeight;
+                    if (strokeWidth > 0) ctx.strokeText(line, x, lineY);
+                    ctx.fillText(line, x, lineY);
+                });
+            }
+
+            function downloadMeme(format) {
+                if (!currentImage) {
+                    alert("Load an image first!");
+                    return;
+                }
+                const mimeType = format === "jpeg" ? "image/jpeg" : "image/png";
+                const dataURL = canvas.toDataURL(mimeType, 0.92);
+                const link = document.createElement("a");
+                link.href = dataURL;
+                link.download = `meme.${format}`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+
+            const uploadZone = document.querySelector(".upload-zone");
+
+            uploadZone.addEventListener("dragover", (e) => {
+                e.preventDefault();
+                uploadZone.style.borderColor = "#f5c400";
+            });
+
+            uploadZone.addEventListener("dragleave", () => {
+                uploadZone.style.borderColor = "";
+            });
+
+            uploadZone.addEventListener("drop", (e) => {
+                e.preventDefault();
+                uploadZone.style.borderColor = "";
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith("image/")) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => loadImageFromURL(ev.target.result);
+                    reader.readAsDataURL(file);
+                }
+            });
+        </script>
+    </body>
+</html>
